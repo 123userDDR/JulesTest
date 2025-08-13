@@ -62,7 +62,7 @@ public class AnimalController : MonoBehaviour
         if (health.IsDead) return;
         
         // Обновляем машину состояний
-        stateMachine?.UpdateStateMachine();
+        stateMachine?.Update();
         
         // Debug информация
         if (showDebugInfo)
@@ -71,6 +71,14 @@ public class AnimalController : MonoBehaviour
         }
     }
     
+    private void FixedUpdate()
+    {
+        if (health.IsDead) return;
+
+        // Обновляем физику в машине состояний
+        stateMachine?.FixedUpdate();
+    }
+
     private void InitializeComponents()
     {
         // Получаем или добавляем необходимые компоненты
@@ -169,10 +177,8 @@ public class AnimalController : MonoBehaviour
     
     private void HandleDeath()
     {
-        // Переходим в состояние смерти
-        stateMachine.ChangeState(new DeadState());
+        stateMachine.TransitionToDead();
         
-        // Дропаем лут
         if (lootDropper != null)
         {
             lootDropper.DropLoot();
@@ -181,37 +187,25 @@ public class AnimalController : MonoBehaviour
     
     private void HandleDamage(float damage)
     {
-        // Переходим в состояние получения урона
-        if (!health.IsDead)
-        {
-            stateMachine.ChangeState(new HurtState());
-        }
+        stateMachine.TransitionToHurt();
     }
     
     private void HandleGrassDetected(GameObject grass)
     {
-        // Если не в состоянии бегства или боли, можем пойти есть
-        if (stateMachine.CanEat())
-        {
-            stateMachine.ChangeState(new EatingState(grass));
-        }
+        stateMachine.TransitionToEating(grass);
     }
     
     private void HandleThreatDetected(GameObject threat)
     {
-        // Убегаем от угрозы
-        if (!health.IsDead)
-        {
-            stateMachine.ChangeState(new FleeingState(threat));
-        }
+        stateMachine.TransitionToFleeing(threat);
     }
     
     private void HandleThreatLost()
     {
-        // Возвращаемся к нормальному поведению
+        // Возвращаемся к нормальному поведению, если убегали
         if (stateMachine.CurrentState is FleeingState)
         {
-            stateMachine.ChangeState(new IdleState());
+            stateMachine.TransitionToIdle();
         }
     }
     
@@ -227,13 +221,6 @@ public class AnimalController : MonoBehaviour
         health.TakeDamage(damage);
     }
     
-    /// <summary>
-    /// Принудительно сменить состояние (для внешнего управления)
-    /// </summary>
-    public void ForceState(AnimalStateBase newState)
-    {
-        stateMachine.ChangeState(newState);
-    }
     
     /// <summary>
     /// Получить текущее состояние
