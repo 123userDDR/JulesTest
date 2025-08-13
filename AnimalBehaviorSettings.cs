@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// ScriptableObject для хранения настроек поведения животного.
-/// Позволяет тонко настраивать логику принятия решений и тайминги.
+/// Позволяет тонко настраивать логику принятия решений и тайминги.Yes
 /// </summary>
 [CreateAssetMenu(fileName = "NewAnimalBehavior", menuName = "Animal/Animal Behavior Settings", order = 2)]
 public class AnimalBehaviorSettings : ScriptableObject
