@@ -170,7 +170,7 @@ public class AnimalController : MonoBehaviour
     private void HandleDeath()
     {
         // Переходим в состояние смерти
-        stateMachine.ChangeState(new DeadState());
+        stateMachine.ChangeState(new DeadState(stateMachine));
         
         // Дропаем лут
         if (lootDropper != null)
@@ -184,7 +184,7 @@ public class AnimalController : MonoBehaviour
         // Переходим в состояние получения урона
         if (!health.IsDead)
         {
-            stateMachine.ChangeState(new HurtState());
+            stateMachine.ChangeState(new HurtState(stateMachine));
         }
     }
     
@@ -193,7 +193,7 @@ public class AnimalController : MonoBehaviour
         // Если не в состоянии бегства или боли, можем пойти есть
         if (stateMachine.CanEat())
         {
-            stateMachine.ChangeState(new EatingState(grass));
+            stateMachine.ChangeState(new EatingState(stateMachine, grass));
         }
     }
     
@@ -202,7 +202,7 @@ public class AnimalController : MonoBehaviour
         // Убегаем от угрозы
         if (!health.IsDead)
         {
-            stateMachine.ChangeState(new FleeingState(threat));
+            stateMachine.ChangeState(new FleeingState(stateMachine, threat));
         }
     }
     
@@ -211,7 +211,7 @@ public class AnimalController : MonoBehaviour
         // Возвращаемся к нормальному поведению
         if (stateMachine.CurrentState is FleeingState)
         {
-            stateMachine.ChangeState(new IdleState());
+            stateMachine.ChangeState(new IdleState(stateMachine));
         }
     }
     
